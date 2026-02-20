@@ -1,0 +1,720 @@
+@import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Limelight&display=swap');
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 1000;
+}
+
+#MM {
+  font-family: 'Kodchasan';
+  font-size: 30px;
+  font-weight: 900;
+  padding: 5px 5px;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  background-color: #333;
+  padding: 10px 10px 5px 5px;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: white;
+}
+
+#footer {
+  font-size: 10px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 12px;
+  background-color: #333;
+  color: white;
+  padding: 10px 10px 10px 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.saving-image {
+  width: 70%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+  border-radius: 12px;
+  float: center;
+}
+
+.home-page-h2 {
+  text-align: center;
+  padding-top: 25px;
+  font-family: Kodchasan;
+}
+
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+}
+
+.hero-title {
+  font-family: 'Kodchasan', sans-serif;
+  font-size: 4rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.hero-text {
+  font-size: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 60px 20px;
+}
+
+.feature-card {
+  flex: 1 1 250px;
+  background-color: #f1f1f1;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+}
+
+.feature-card:hover {
+  transform: scale(1.03);
+}
+
+.feature-card h4 {
+  margin-bottom: 10px;
+}
+
+.visuals {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.visual-text {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1rem;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: cadetblue;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: green;
+}
+
+.right {
+  float: right;
+}
+
+.contact-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.contact-form input[type="submit"] {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.contact-form input[type="submit"]:hover {
+  background-color: #555;
+}
+
+.about-page {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-intro h1,
+.about-mission h2,
+.about-philosophy h2 {
+  font-family: 'Kodchasan', sans-serif;
+  font-weight: 900;
+  margin-bottom: 15px;
+}
+
+.main-content,
+.contact-container,
+.about-page,
+.home-page-background {
+  padding-top: calc(50px + 20px);
+}
+
+.about-intro p,
+.about-mission p,
+.about-philosophy p,
+.about-conclusion p {
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+.about-visual {
+  text-align: center;
+  margin: 40px 0;
+}
+
+.dollar-image {
+  max-width: 60%;
+  border-radius: 12px;
+}
+
+.about-conclusion {
+  text-align: center;
+}
+
+.income-board {
+  width: 100%;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;     
+  min-height: 100vh;
+  padding: 20px;
+  background: #f9fafb;
+  font-family: 'Segoe UI', sans-serif;
+  color: #111;
+  text-align: center;
+}
+
+.dashboard-container h2 {
+  font-size: 2.2rem;
+  margin-bottom: 50px;
+  font-weight: 600;
+}
+
+.dashboard-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+}
+
+.dashboard-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding: 30px 25px;
+  border-radius: 15px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: 0.3s;
+  width: 180px;
+}
+
+.dashboard-link:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.dashboard-link span {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.dashboard-icon {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.home-page-background {
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: 20%;
+}
+
+.login-wrapper {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+}
+
+.app-name {
+  text-align: center;
+  font-size: 4rem;
+  font-family: 'Kodchasan';
+  margin: 10px 0 30px 0;
+  font-weight: bolder;
+  letter-spacing: 1px;
+}
+
+.map-your-wealth {
+  text-align: center;
+  font-size: 1rem;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin: 5px 0;
+  font-weight: bolder;
+  letter-spacing: 1px;
+  font-family: 'Kodchasan';
+  font-weight: bolder;
+}
+
+.login-container {
+  margin: 20px;
+  max-width: 400px;
+  padding: 36px;
+  background-color: silver;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 8px;
+}
+
+input[type=email],
+input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=email]:focus,
+input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+.login {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.clickable-underline {
+  text-decoration: underline;
+  font-size: 1rem;
+}
+
+.sign-up-container {
+  position: absolute;
+  right: 0;
+  margin: 20px 20px;
+  max-width: 400px;
+  padding: 46px;
+  background-color: silver;
+  min-height: 500px;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+  width: 100%;
+  padding: 5px;
+  margin: 5px 0 5px 0;
+  border: none;
+  background: #f1f1f1;
+  outline: none;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+}
+
+input[type=text]:focus,
+input[type=email]:focus,
+input[type=password]:focus {
+  border: 2px solid #04AA6D;
+  background-color: white;
+}
+
+.sign-up {
+  font-family: sans-serif;
+  text-align: left;
+  margin-bottom: 20px;
+  margin-top: -15px;
+}
+
+.main-content {
+  padding-top: 100px;
+}
+
+.tracking-card-page {
+  max-width: 800px;
+  margin: 120px auto 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Kodchasan', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.tracking-card-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  color: #222;
+}
+
+.tracking-card-page p {
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.tracking-card-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 30px auto 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tracking-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding: 0 20px;
+}
+
+.tracking-button {
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: cadetblue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.tracking-button:hover {
+  transform: scale(1.1);
+  background-color: #45a049;
+}
+
+.main-content {
+  max-width: 800px;
+  margin: 120px auto 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  font-family: 'Kodchasan', sans-serif;
+  line-height: 1.6;
+}
+
+.main-content p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.main-content ol {
+  margin-left: 20px;
+  padding-left: 20px;
+}
+
+.main-content li {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.saving-goals-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding: 0 20px;
+}
+
+.bof-button,
+.youtube-button {
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  background-color: cadetblue;
+  color: white;
+}
+
+.bof-button:hover {
+  transform: scale(1.05);
+  background-color: green;
+}
+
+.youtube-button:hover {
+  transform: scale(1.05);
+  background-color: green;
+}
+
+.main-container-table {
+  max-width: 700px;
+  margin: 120px auto 50px auto;
+  padding: 25px;
+  background-color: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Kodchasan', sans-serif;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+label {
+  font-weight: 600;
+  color: #333;
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  font-size: 1rem;
+}
+
+input:focus {
+  border-color: cadetblue;
+  outline: none;
+  background-color: #f5faff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+caption {
+  text-align: left;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f8ff;
+  color: #333;
+}
+
+tfoot th {
+  background-color: #e6f2ff;
+  font-size: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-buttons svg {
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.action-buttons svg:hover {
+  transform: scale(1.2);
+  color: #ff4c4c;
+}
+
+/* Breakpoint for tables-1024*/
+@media screen and (max-width: 1024px) {
+  .main-container-table {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  input,
+  .btn,
+  .tracking-button,
+  .bof-button,
+  .youtube-button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+
+  .dashboard-container h2 {
+    font-size: 2rem;
+  }
+
+  .feature-card {
+    flex: 1 1 200px;
+    padding: 15px;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+}
+
+/* Breakpoint for small screens (600px)*/
+@media screen and (max-width: 600px) {
+
+  .main-container-table {
+    max-width: 95%;
+    padding: 15px;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+  }
+
+  th,
+  td {
+    padding: 6px;
+    font-size: 0.85rem;
+  }
+
+  .action-buttons {
+    margin-top: 10px;
+  }
+
+  input,
+  .btn,
+  .tracking-button,
+  .bof-button,
+  .youtube-button {
+    font-size: 0.85rem;
+    padding: 8px 15px;
+  }
+
+  .dashboard-container h2 {
+    font-size: 1.8rem;
+  }
+
+  .feature-card {
+    flex: 1 1 100%;
+    padding: 12px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .contact-container,
+  .login-container,
+  .sign-up-container {
+    width: 90%;
+    margin: 20px auto;
+    padding: 15px;
+  }
+}
