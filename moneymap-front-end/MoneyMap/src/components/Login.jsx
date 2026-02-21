@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import { login } from '../services/authService'
+import './Login.css'
 
 
 export default function Login() {
@@ -9,39 +10,44 @@ export default function Login() {
     const [error, setError] = useState("")
     const navigate = useNavigate()
 
-    const handleLogin = (e) => {
-        e.preventDefault()
+const handleLogin = async (e) => {
+    e.preventDefault()
+    setError("")
 
-        if (!email || !password) {
-            setError("Please enter both email and password.")
-            return
-        }
-
-        if (!email.includes("@") || !email.includes(".")) {
-            setError("Please enter a valid email address.")
-            return
-        }
-
-        if (!/\d/.test(password)) {
-            setError("Your password must have at least one number.")
-            return
-        }
-
-        if (!/[A-Z]/.test(password)) {
-            setError("Your password must have at least one capital letter.")
-            return
-        }
-        if(password.length < 9){
-            setError("Your password must be at least 9 characters long.")
-            return
-        }
-
-
-        navigate("/home")
+    if (!email || !password) {
+        setError("Please enter both email and password.")
+        return
     }
 
-    return (
-        <div 
+    if (!email.includes("@") || !email.includes(".")) {
+        setError("Please enter a valid email address.")
+        return
+    }
+
+    if (!/\d/.test(password)) {
+        setError("Your password must have at least one number.")
+        return
+    }
+
+    if (!/[A-Z]/.test(password)) {
+        setError("Your password must have at least one capital letter.")
+        return
+    }
+
+    if (password.length < 9) {
+        setError("Your password must be at least 9 characters long.")
+        return
+    }
+
+    try {
+        await login(email, password)
+        navigate("/home")
+    } catch (err) {
+        setError(err.message || "Login failed. Please check your credentials.")
+    }
+}
+return (
+        <div
         className='login-page'>
             <form className='login-container'>
                 <div className='input-box'>
@@ -85,5 +91,5 @@ export default function Login() {
                </div>
             </form>
         </div>
-    )
-}
+        )
+    }

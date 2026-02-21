@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LoginPage from './Images/LoginPage.jpg'
+import { signup } from '../services/authService'
+import './SignUp.css'
 
 
 export default function SignUp() {
@@ -12,7 +14,7 @@ export default function SignUp() {
 
     const navigate = useNavigate()
 
-    const handleSignUp = (e) => {
+    const handleSignUp = async (e) => {
         e.preventDefault()
 
         if (!email || !password) {
@@ -44,10 +46,21 @@ export default function SignUp() {
         }
         if(!lastname){
             setError("Please enter your last name.")
+            return;
         }
-
-
+    try {
+        const response = await signup ({
+            firstName: name,
+            lastName:lastname,
+            email,
+            password
+            })
+        alert(response);//User registered successfully
         navigate("/home")
+        } catch(err){
+            setError("Signup failed")
+            }
+
     }
     return (
   <div
