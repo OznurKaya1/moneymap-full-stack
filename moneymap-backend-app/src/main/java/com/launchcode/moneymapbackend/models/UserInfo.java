@@ -8,28 +8,28 @@ import jakarta.persistence.*;
 // and authorization purposes in the application.
 
 @Entity
-@Table(name="users")
-public class UserInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String firstName;
-    private String lastName;
-    @Column(unique = true)
-    private String email;
-    private String password;
-    private String roles = "USER";
+    @Table(name="users")
+    public class UserInfo {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        private String firstName;
+        private String lastName;
+        @Column(unique = true)
+        private String email;
+        private String password;
+        private String roles = "USER";
 
-    public UserInfo() {}
+        public UserInfo() {}
 
-    public UserInfo(String firstName, String lastName, String email, String password, String roles) {
+        public UserInfo(String firstName, String lastName, String email, String password, String roles) {
 
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-    }
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+            this.password = password;
+            this.roles = roles;
+        }
 
     public Long getId() {
         return id;

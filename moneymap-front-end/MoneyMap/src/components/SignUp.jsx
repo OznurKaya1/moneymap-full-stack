@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LoginPage from './Images/LoginPage.jpg'
 import { signup } from '../services/authService'
-import './SignUp.css'
+
 
 
 export default function SignUp() {
@@ -48,6 +48,7 @@ export default function SignUp() {
             setError("Please enter your last name.")
             return;
         }
+    console.log("Sending:", { firstName: name, lastName: lastname, email, password })
     try {
         const response = await signup ({
             firstName: name,
@@ -76,7 +77,7 @@ export default function SignUp() {
       alignItems: 'center',
     }}
   >
-    <form className='sign-up-container'>
+    <form className='sign-up-container' onSubmit={handleSignUp}>
       <div className='input-box'>
         <h1 className='sign-up'>Sign up</h1>
         <label htmlFor='firstName'>First name</label>
@@ -128,7 +129,7 @@ export default function SignUp() {
 
       {error && <p className='error-message'>{error}</p>}
 
-      <button type='submit' className='btn' onClick={handleSignUp}>
+      <button type='submit' className='btn'>
         Join now
       </button>
     </form>
