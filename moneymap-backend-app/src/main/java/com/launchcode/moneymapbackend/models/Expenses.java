@@ -41,12 +41,12 @@ public class Expenses {
         this.amount = amount;
     }
 
-    public String getDesciription() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDesciription(String desciription) {
-        this.description = desciription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCategory() {
