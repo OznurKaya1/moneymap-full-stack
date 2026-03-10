@@ -154,6 +154,7 @@ export default function ForgotMyPassword() {
                 </form>
             )}
         </div>
+
     );
 }
 
