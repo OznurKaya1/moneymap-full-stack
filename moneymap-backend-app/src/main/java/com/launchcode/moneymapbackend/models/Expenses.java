@@ -11,7 +11,7 @@ public class Expenses {
     private Long id;
     private LocalDate date;
     private double amount;
-    private String desciription;
+    private String description;
     private String category;
 
     @ManyToOne
@@ -42,11 +42,11 @@ public class Expenses {
     }
 
     public String getDesciription() {
-        return desciription;
+        return description;
     }
 
     public void setDesciription(String desciription) {
-        this.desciription = desciription;
+        this.description = desciription;
     }
 
     public String getCategory() {
