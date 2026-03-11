@@ -29,7 +29,7 @@ public class WebSecurityConfig {
                                 "/api/auth/forgot-password/verify-email",
                                 "/api/auth/forgot-password/reset"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }
