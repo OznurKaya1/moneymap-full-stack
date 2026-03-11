@@ -33,7 +33,7 @@ public class Expenses {
         this.date = date;
     }
 
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
