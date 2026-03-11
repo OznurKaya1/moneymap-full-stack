@@ -76,10 +76,10 @@ public class ExpenseController {
         Expenses expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        expense.setAmount(expenseDetails.getAmount());
-        expense.setDate(expenseDetails.getDate());
-        expense.setDescription(expenseDetails.getDescription());
-        expense.setCategory(expenseDetails.getCategory());
+        if (expenseDetails.getAmount() != null) expense.setAmount(expenseDetails.getAmount());
+        if (expenseDetails.getDate() != null) expense.setDate(expenseDetails.getDate());
+        if (expenseDetails.getDescription() != null) expense.setDescription(expenseDetails.getDescription());
+        if (expenseDetails.getCategory() != null) expense.setCategory(expenseDetails.getCategory());
 
         Expenses updatedExpense = expenseRepository.save(expense);
         return ResponseEntity.ok(updatedExpense);
