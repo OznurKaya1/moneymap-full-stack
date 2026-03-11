@@ -10,7 +10,7 @@ public class Expenses {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate date;
-    private double amount;
+    private Double amount;
     private String description;
     private String category;
 
