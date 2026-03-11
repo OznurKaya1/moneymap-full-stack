@@ -10,7 +10,7 @@ public class Income {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private LocalDate date;
-    private double amount;
+    private Double amount;
     private String description;
     private String category;
 
@@ -33,11 +33,11 @@ public class Income {
         this.date = date;
     }
 
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
