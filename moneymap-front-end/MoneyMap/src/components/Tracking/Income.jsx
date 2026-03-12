@@ -1,157 +1,128 @@
-import React, { useState } from "react";
-import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
+import React,{useState,useEffect} from "react"
+import {BsFillTrashFill,BsFillPencilFill} from "react-icons/bs"
+import {useNavigate} from "react-router-dom"
 
-export default function Income({ incomeList, setIncomeList }) {
-  const [date, setDate] = useState("");
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [error, setError] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const navigate = useNavigate();
+// Income tracker component
+export default function Income({incomeList,setIncomeList}){
 
-  const filteredIncome = selectedMonth
-    ? incomeList.filter((item) => item.date.slice(0, 7) === selectedMonth)
-    : incomeList;
+const [date,setDate] = useState("")
+const [amount,setAmount] = useState("")
+const [description,setDescription] = useState("")
+const [editingIndex,setEditingIndex] = useState(null)
+const [error,setError] = useState("")
+const [selectedMonth,setSelectedMonth] = useState("")
 
-  const handleAddIncome = (e) => {
-    e.preventDefault();
-    setError("");
-    if (!date) { setError("Please enter a date."); return; }
-    if (!amount) { setError("Please enter an amount."); return; }
-    if (Number(amount) < 0) { setError("Amount can't be less than zero."); return; }
+const navigate = useNavigate()
 
-    const newIncome = { date, amount: Number(amount), description };
+// Load incomes from backend when component mounts
+useEffect(()=>{
+  fetch("http://localhost:8080/api/incomes")
+    .then(res=>res.json())
+    .then(data=>setIncomeList(data))
+    .catch(err=>console.error(err))
+},[])
 
-    if (editingIndex === null) {
-      setIncomeList([...incomeList, newIncome]);
-    } else {
-      const updatedList = incomeList.map((item, idx) =>
-        idx === editingIndex ? newIncome : item
-      );
-      setIncomeList(updatedList);
-      setEditingIndex(null);
-    }
-    setDate(""); setAmount(""); setDescription("");
-  };
+// Filter incomes by selected month
+const filteredIncome = selectedMonth
+? incomeList.filter(item => item.date.slice(0,7) === selectedMonth)
+: incomeList
 
-  const handleRemoveIncome = (i) => setIncomeList(incomeList.filter((_, idx) => idx !== i));
+// Add or update income
+const handleAddIncome = async(e)=>{
+  e.preventDefault()
+  if(!date){setError("Enter date");return}         // Validate date
+  if(!amount){setError("Enter amount");return}     // Validate amount
 
-  const handleEditIncome = (i) => {
-    const item = incomeList[i];
-    setDate(item.date); setAmount(item.amount); setDescription(item.description);
-    setEditingIndex(i);
-  };
+  const newIncome = {date, amount:Number(amount), description} // Create object
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") { e.preventDefault(); handleAddIncome(e); }
-  };
+  // Send to backend
+  const response = await fetch("http://localhost:8080/api/incomes",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(newIncome)
+  })
+  const savedIncome = await response.json()        // Get saved income
 
-  const totalAmount = filteredIncome.reduce((sum, item) => sum + item.amount, 0);
+  if(editingIndex===null){
+    setIncomeList([...incomeList,savedIncome])     // Add new income
+  } else {
+    const updated = incomeList.map((item,idx)=>
+      idx===editingIndex ? savedIncome : item
+    )
+    setIncomeList(updated)                          // Update income
+    setEditingIndex(null)
+  }
 
-  const monthOptions = Array.from(new Set(incomeList.map(item => item.date.slice(0, 7)))).sort();
+  setDate(""); setAmount(""); setDescription("")   // Reset form
+}
 
-  return (
-    <div className="tracker-page">
-      <h1 className="tracker-title">Income Tracker</h1>
+// Delete income locally
+const handleRemoveIncome = (i)=>{
+  setIncomeList(incomeList.filter((_,idx)=>idx!==i))
+}
 
-      <div className="tracker-card">
-        {/* Month Filter */}
-        <div className="tracker-filter">
-          <label htmlFor="monthSelect">Filter by Month:</label>
-          <select
-            id="monthSelect"
-            className="tracker-select"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            <option value="">All Months</option>
-            {monthOptions.map((month) => (
-              <option key={month} value={month}>
-                {new Date(month + "-01").toLocaleString("default", { month: "long", year: "numeric" })}
-              </option>
-            ))}
-          </select>
-        </div>
+// Load income into form for editing
+const handleEditIncome = (i)=>{
+  const item = incomeList[i]
+  setDate(item.date); setAmount(item.amount); setDescription(item.description)
+  setEditingIndex(i)
+}
 
-        <hr className="tracker-divider" />
+// Calculate total for filtered incomes
+const totalAmount = filteredIncome.reduce((sum,item)=>sum+item.amount,0)
 
-        {/* Form */}
-        {error && <p className="tracker-error">{error}</p>}
-        <div className="tracker-form-row">
-          <div className="tracker-field">
-            <span className="tracker-field-label">Date</span>
-            <input
-              type="date"
-              className="tracker-input"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
-          <input
-            type="number"
-            className="tracker-input tracker-input-amount"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <input
-            type="text"
-            className="tracker-input tracker-input-desc"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
+// Extract unique months for filter dropdown
+const monthOptions = Array.from(new Set(incomeList.map(item=>item.date.slice(0,7)))).sort()
 
-        <div className="tracker-btn-row">
-          <button className="tracker-btn tracker-btn-primary" onClick={handleAddIncome}>
-            {editingIndex !== null ? "Update Income" : "Add Income"}
-          </button>
-          <button className="tracker-btn tracker-btn-secondary" onClick={() => navigate("/expenses")}>
-            Go to Expenses
-          </button>
-        </div>
+return(
+<div>
+  <h1>Income Tracker</h1>
 
-        <hr className="tracker-divider" />
+  {/* Month filter */}
+  <select value={selectedMonth} onChange={(e)=>setSelectedMonth(e.target.value)}>
+    <option value="">All Months</option>
+    {monthOptions.map(month=>(
+      <option key={month} value={month}>{month}</option>
+    ))}
+  </select>
 
-        {/* Table */}
-        <table className="tracker-table">
-          <caption className="tracker-caption">My monthly income</caption>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredIncome.map((item, index) => (
-              <tr key={index}>
-                <td>{item.date}</td>
-                <td>{item.amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
-                <td>{item.description}</td>
-                <td className="tracker-actions">
-                  <BsFillTrashFill className="action-icon trash" onClick={() => handleRemoveIncome(index)} />
-                  <BsFillPencilFill className="action-icon edit" onClick={() => handleEditIncome(index)} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th>Balance</th>
-              <th colSpan="3">
-                {totalAmount.toLocaleString("en-US", { style: "currency", currency: "USD" })}
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-  );
+  {/* Error message */}
+  {error && <p>{error}</p>}
+
+  {/* Form */}
+  <input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/>
+  <input type="number" placeholder="Amount" value={amount} onChange={(e)=>setAmount(e.target.value)}/>
+  <input type="text" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)}/>
+
+  {/* Buttons */}
+  <button onClick={handleAddIncome}>{editingIndex!==null ? "Update Income":"Add Income"}</button>
+  <button onClick={()=>navigate("/expenses")}>Go to Expenses</button>
+
+  {/* Table */}
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Amount</th><th>Description</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {filteredIncome.map((item,index)=>(
+        <tr key={index}>
+          <td>{item.date}</td>
+          <td>{item.amount}</td>
+          <td>{item.description}</td>
+          <td>
+            <BsFillTrashFill onClick={()=>handleRemoveIncome(index)}/> {/* Delete */}
+            <BsFillPencilFill onClick={()=>handleEditIncome(index)}/>  {/* Edit */}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>Total</th>
+        <th colSpan="3">{totalAmount}</th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+)
 }
