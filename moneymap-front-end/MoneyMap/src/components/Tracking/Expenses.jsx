@@ -1,49 +1,234 @@
-import React,{useState,useEffect} from "react"
-import {getCurrentUser} from "../../services/authService"
+import React, { useState, useEffect } from "react";
+import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../../services/authService"; // Fixed import path
 
+export default function Expenses({ expenseList, setExpenseList, totalBalance }) {
+  const [date, setDate] = useState("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [error, setError] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const navigate = useNavigate();
 
-export default function Expenses({expenseList,setExpenseList}){
+  // Fetch expenses from backend on component mount
+  useEffect(() => {
+    async function fetchExpenses() {
+      try {
+        const user = getCurrentUser();
+        if (!user) return;
 
-const [date,setDate] = useState("")           // Input: date
-const [amount,setAmount] = useState("")       // Input: amount
-const [description,setDescription] = useState("") // Input: description
+        const res = await fetch(`http://localhost:8080/api/expenses/${user.id}`);
+        const data = await res.json();
+        setExpenseList(data); // populate expenseList from backend
+      } catch (err) {
+        console.error("Failed to fetch expenses:", err);
+      }
+    }
+    fetchExpenses();
+  }, [setExpenseList]);
 
-const user = getCurrentUser()                 // Get logged-in user
+  // Filter expenses by selected month
+  const filteredExpense = selectedMonth
+    ? expenseList.filter((item) => item.date.slice(0, 7) === selectedMonth)
+    : expenseList;
 
-// Load expenses for logged-in user
-useEffect(()=>{
-  fetch(`http://localhost:8080/api/expenses/${user.id}`)
-    .then(res=>res.json())
-    .then(data=>setExpenseList(data))
-},[])
+  // Add or update an expense
+  const handleAddExpense = async (e) => {
+    e.preventDefault();
+    setError("");
 
-// Add a new expense
-const handleAddExpense = async(e)=>{
-  e.preventDefault()
+    if (!date) { setError("Please enter a date."); return; }
+    if (!amount) { setError("Please enter an amount."); return; }
+    if (Number(amount) < 0) { setError("Amount can't be less than zero."); return; }
 
-  const newExpense = {date, amount:Number(amount), description}
+    const user = getCurrentUser();
+    if (!user) { setError("User not logged in."); return; }
 
-  // Send to backend
-  const response = await fetch(`http://localhost:8080/api/expenses/${user.id}`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(newExpense)
-  })
-  const savedExpense = await response.json()
+    const newExpense = { date, amount: Number(amount), description };
 
-  setExpenseList([...expenseList,savedExpense]) // Update frontend list
-}
+    // Check if total exceeds balance
+    const currentTotal = expenseList.reduce((sum, item) => sum + item.amount, 0);
+    if (currentTotal + Number(amount) > totalBalance) {
+      setError("Cannot add: total expenses would exceed your total income!");
+      return;
+    }
 
-return(
-<div>
-  <h1>Expense Tracker</h1>
+    try {
+      if (editingIndex === null) {
+        // Save new expense to backend
+        const res = await fetch(`http://localhost:8080/api/expenses/${user.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newExpense),
+        });
+        const savedExpense = await res.json();
+        setExpenseList([...expenseList, savedExpense]);
+      } else {
+        // Update expense in backend
+        const expenseToUpdate = expenseList[editingIndex];
+        const res = await fetch(`http://localhost:8080/api/expenses/${expenseToUpdate.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newExpense),
+        });
+        const updatedExpense = await res.json();
+        const updatedList = expenseList.map((item, idx) =>
+          idx === editingIndex ? updatedExpense : item
+        );
+        setExpenseList(updatedList);
+        setEditingIndex(null);
+      }
+    } catch (err) {
+      console.error("Failed to save expense:", err);
+      setError("Failed to save expense. Check console for details.");
+    }
 
-  {/* Form */}
-  <input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/>
-  <input type="number" value={amount} onChange={(e)=>setAmount(e.target.value)}/>
-  <input type="text" value={description} onChange={(e)=>setDescription(e.target.value)}/>
+    setDate(""); setAmount(""); setDescription("");
+  };
 
-  <button onClick={handleAddExpense}>Add Expense</button>
-</div>
-)
+  // Delete expense
+  const handleRemove = async (i) => {
+    const expenseToDelete = filteredExpense[i];
+    try {
+      await fetch(`http://localhost:8080/api/expenses/${expenseToDelete.id}`, {
+        method: "DELETE",
+      });
+      setExpenseList(expenseList.filter((item) => item.id !== expenseToDelete.id));
+    } catch (err) {
+      console.error("Failed to delete expense:", err);
+      setError("Failed to delete expense.");
+    }
+  };
+
+  // Edit expense: populate form
+  const handleEdit = (i) => {
+    const item = filteredExpense[i];
+    setDate(item.date); setAmount(item.amount); setDescription(item.description);
+    const indexInOriginal = expenseList.findIndex(e => e.id === item.id);
+    setEditingIndex(indexInOriginal);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") { e.preventDefault(); handleAddExpense(e); }
+  };
+
+  const totalExpense = filteredExpense.reduce((sum, item) => sum + item.amount, 0);
+
+  // Generate month options for filter dropdown
+  const monthOptions = Array.from(new Set(expenseList.map(item => item.date.slice(0, 7)))).sort();
+
+  return (
+    <div className="tracker-page">
+      <h1 className="tracker-title">Expense Tracker</h1>
+
+      <div className="tracker-card">
+        {/* Month Filter */}
+        <div className="tracker-filter">
+          <label htmlFor="monthSelect">Filter by Month:</label>
+          <select
+            id="monthSelect"
+            className="tracker-select"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option value="">All Months</option>
+            {monthOptions.map((month) => (
+              <option key={month} value={month}>
+                {new Date(month + "-01").toLocaleString("default", { month: "long", year: "numeric" })}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <hr className="tracker-divider" />
+
+        {/* Form */}
+        {error && <p className="tracker-error">{error}</p>}
+        <div className="tracker-form-row">
+          <div className="tracker-field">
+            <span className="tracker-field-label">Date</span>
+            <input
+              type="date"
+              className="tracker-input"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <input
+            type="number"
+            className="tracker-input tracker-input-amount"
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <input
+            type="text"
+            className="tracker-input tracker-input-desc"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+
+        <div className="tracker-btn-row">
+          <button className="tracker-btn tracker-btn-primary" onClick={handleAddExpense}>
+            {editingIndex !== null ? "Update Expense" : "Add Expense"}
+          </button>
+          <button className="tracker-btn tracker-btn-secondary" onClick={() => navigate("/income")}>
+            Go to Income Page
+          </button>
+        </div>
+
+        <p className="tracker-balance-note">
+          Remaining budget:{" "}
+          <strong>
+            {(totalBalance - expenseList.reduce((s, i) => s + i.amount, 0)).toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}
+          </strong>
+        </p>
+
+        <hr className="tracker-divider" />
+
+        {/* Table */}
+        <table className="tracker-table">
+          <caption className="tracker-caption">My monthly expenses</caption>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredExpense.map((item, index) => (
+              <tr key={item.id}>
+                <td>{item.date}</td>
+                <td>{item.amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
+                <td>{item.description}</td>
+                <td className="tracker-actions">
+                  <BsFillTrashFill className="action-icon trash" onClick={() => handleRemove(index)} />
+                  <BsFillPencilFill className="action-icon edit" onClick={() => handleEdit(index)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Total Expenses</th>
+              <th colSpan="3">
+                {totalExpense.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+              </th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
 }
