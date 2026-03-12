@@ -2,94 +2,85 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../services/authService'
 
-
-
 export default function Login() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [error, setError] = useState("")
-    const navigate = useNavigate()
+
+const [email,setEmail] = useState("")
+const [password,setPassword] = useState("")
+const [error,setError] = useState("")
+
+const navigate = useNavigate()
 
 const handleLogin = async (e) => {
-    e.preventDefault()
-    setError("")
 
-    if (!email || !password) {
-        setError("Please enter both email and password.")
-        return
-    }
+e.preventDefault()
+setError("")
 
-    if (!email.includes("@") || !email.includes(".")) {
-        setError("Please enter a valid email address.")
-        return
-    }
-
-    if (!/\d/.test(password)) {
-        setError("Your password must have at least one number.")
-        return
-    }
-
-    if (!/[A-Z]/.test(password)) {
-        setError("Your password must have at least one capital letter.")
-        return
-    }
-
-    if (password.length < 9) {
-        setError("Your password must be at least 9 characters long.")
-        return
-    }
-
-    try {
-        await login(email, password)
-        navigate("/home")
-    } catch (err) {
-        setError(err.message || "Login failed. Please check your credentials.")
-    }
+if(!email || !password){
+setError("Please enter both email and password.")
+return
 }
-return (
-        <div
-        className='login-page'>
-            <form className='login-container'>
-                <div className='input-box'>
-                    <h1 className='login'>Login</h1>
-                    <label htmlFor='email'>Email</label>
-                    <input
-                        type='email'
-                        id='email'
-                        name='email'
-                        placeholder='Enter Email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
 
-                <div className='input-box'>
-                    <label htmlFor='password'>Password</label>
-                    <input
-                        type='password'
-                        id='password'
-                        name='password'
-                        placeholder='Enter Password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
+try{
 
-                {error && <p className='error-message'>{error}</p>}
+const user = await login(email,password)
 
-                <button type='submit' className='btn' onClick={handleLogin}>Login</button>
+if(!user){
+setError("Login failed")
+return
+}
 
-                <div className='login-links'>
-                    <Link to='/signup' className="clickable-underline">
-                        Don't have an account?
-                    </Link>
-                    <Link to='/forgotmypassword' className="clickable-underline">
-                        Forgot password?
-                    </Link>
-               </div>
-            </form>
-        </div>
-        )
-    }
+navigate("/home")
+
+}catch(err){
+
+setError(err.message || "Login failed")
+
+}
+
+}
+
+return(
+
+<div className='login-page'>
+
+<form className='login-container'>
+
+<h1>Login</h1>
+
+<input
+type="email"
+placeholder="Enter Email"
+value={email}
+onChange={(e)=>setEmail(e.target.value)}
+/>
+
+<input
+type="password"
+placeholder="Enter Password"
+value={password}
+onChange={(e)=>setPassword(e.target.value)}
+/>
+
+{error && <p>{error}</p>}
+
+<button onClick={handleLogin}>Login</button>
+
+<div>
+
+<Link to="/signup">
+Don't have an account?
+</Link>
+
+<Link to="/forgotmypassword">
+Forgot password?
+</Link>
+
+</div>
+
+</form>
+
+</div>
+
+)
+
+}
