@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../../services/authService"; // Fixed import path
+import { getCurrentUser } from "../../services/authService"; // Correct path
 
 export default function Expenses({ expenseList, setExpenseList, totalBalance }) {
   const [date, setDate] = useState("");
@@ -12,7 +12,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
   const [selectedMonth, setSelectedMonth] = useState("");
   const navigate = useNavigate();
 
-  // Fetch expenses from backend on component mount
+  // Fetch expenses from backend on mount
   useEffect(() => {
     async function fetchExpenses() {
       try {
@@ -21,7 +21,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
 
         const res = await fetch(`http://localhost:8080/api/expenses/${user.id}`);
         const data = await res.json();
-        setExpenseList(data); // populate expenseList from backend
+        setExpenseList(data);
       } catch (err) {
         console.error("Failed to fetch expenses:", err);
       }
@@ -29,12 +29,12 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
     fetchExpenses();
   }, [setExpenseList]);
 
-  // Filter expenses by selected month
+  // Filter expenses by month
   const filteredExpense = selectedMonth
     ? expenseList.filter((item) => item.date.slice(0, 7) === selectedMonth)
     : expenseList;
 
-  // Add or update an expense
+  // Add or update expense
   const handleAddExpense = async (e) => {
     e.preventDefault();
     setError("");
@@ -48,7 +48,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
 
     const newExpense = { date, amount: Number(amount), description };
 
-    // Check if total exceeds balance
+    // Prevent exceeding total balance
     const currentTotal = expenseList.reduce((sum, item) => sum + item.amount, 0);
     if (currentTotal + Number(amount) > totalBalance) {
       setError("Cannot add: total expenses would exceed your total income!");
@@ -57,7 +57,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
 
     try {
       if (editingIndex === null) {
-        // Save new expense to backend
+        // Save new expense
         const res = await fetch(`http://localhost:8080/api/expenses/${user.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -66,7 +66,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
         const savedExpense = await res.json();
         setExpenseList([...expenseList, savedExpense]);
       } else {
-        // Update expense in backend
+        // Update existing expense
         const expenseToUpdate = expenseList[editingIndex];
         const res = await fetch(`http://localhost:8080/api/expenses/${expenseToUpdate.id}`, {
           method: "PUT",
@@ -92,9 +92,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
   const handleRemove = async (i) => {
     const expenseToDelete = filteredExpense[i];
     try {
-      await fetch(`http://localhost:8080/api/expenses/${expenseToDelete.id}`, {
-        method: "DELETE",
-      });
+      await fetch(`http://localhost:8080/api/expenses/${expenseToDelete.id}`, { method: "DELETE" });
       setExpenseList(expenseList.filter((item) => item.id !== expenseToDelete.id));
     } catch (err) {
       console.error("Failed to delete expense:", err);
@@ -110,13 +108,11 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
     setEditingIndex(indexInOriginal);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") { e.preventDefault(); handleAddExpense(e); }
-  };
+  const handleKeyDown = (e) => { if (e.key === "Enter") { e.preventDefault(); handleAddExpense(e); } };
 
   const totalExpense = filteredExpense.reduce((sum, item) => sum + item.amount, 0);
 
-  // Generate month options for filter dropdown
+  // Generate month options for filter
   const monthOptions = Array.from(new Set(expenseList.map(item => item.date.slice(0, 7)))).sort();
 
   return (
@@ -222,9 +218,7 @@ export default function Expenses({ expenseList, setExpenseList, totalBalance }) 
           <tfoot>
             <tr>
               <th>Total Expenses</th>
-              <th colSpan="3">
-                {totalExpense.toLocaleString("en-US", { style: "currency", currency: "USD" })}
-              </th>
+              <th colSpan="3">{totalExpense.toLocaleString("en-US", { style: "currency", currency: "USD" })}</th>
             </tr>
           </tfoot>
         </table>

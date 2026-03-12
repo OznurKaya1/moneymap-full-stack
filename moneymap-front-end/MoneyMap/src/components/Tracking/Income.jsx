@@ -1,8 +1,8 @@
 import React,{useState,useEffect} from "react"
 import {BsFillTrashFill,BsFillPencilFill} from "react-icons/bs"
 import {useNavigate} from "react-router-dom"
+import { getCurrentUser } from "../../services/authService"
 
-// Income tracker component
 export default function Income({incomeList,setIncomeList}){
 
 const [date,setDate] = useState("")
@@ -13,14 +13,16 @@ const [error,setError] = useState("")
 const [selectedMonth,setSelectedMonth] = useState("")
 
 const navigate = useNavigate()
+const user = getCurrentUser()  // getting logged in users
 
 // Load incomes from backend when component mounts
 useEffect(()=>{
-  fetch("http://localhost:8080/api/incomes")
+  if(!user) return;   // if not logged in, skip
+  fetch(`http://localhost:8080/api/incomes/${user.id}`)
     .then(res=>res.json())
     .then(data=>setIncomeList(data))
     .catch(err=>console.error(err))
-},[])
+},[user,setIncomeList])
 
 // Filter incomes by selected month
 const filteredIncome = selectedMonth
@@ -30,30 +32,31 @@ const filteredIncome = selectedMonth
 // Add or update income
 const handleAddIncome = async(e)=>{
   e.preventDefault()
-  if(!date){setError("Enter date");return}         // Validate date
-  if(!amount){setError("Enter amount");return}     // Validate amount
+  if(!date){setError("Enter date");return}
+  if(!amount){setError("Enter amount");return}
+  if(!user){setError("User not logged in");return}   // <- check user
 
-  const newIncome = {date, amount:Number(amount), description} // Create object
+  const newIncome = {date, amount:Number(amount), description}
 
   // Send to backend
-  const response = await fetch("http://localhost:8080/api/incomes",{
+  const response = await fetch(`http://localhost:8080/api/incomes/${user.id}`,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(newIncome)
   })
-  const savedIncome = await response.json()        // Get saved income
+  const savedIncome = await response.json()
 
   if(editingIndex===null){
-    setIncomeList([...incomeList,savedIncome])     // Add new income
+    setIncomeList([...incomeList,savedIncome])
   } else {
     const updated = incomeList.map((item,idx)=>
       idx===editingIndex ? savedIncome : item
     )
-    setIncomeList(updated)                          // Update income
+    setIncomeList(updated)
     setEditingIndex(null)
   }
 
-  setDate(""); setAmount(""); setDescription("")   // Reset form
+  setDate(""); setAmount(""); setDescription("")
 }
 
 // Delete income locally
@@ -110,8 +113,8 @@ return(
           <td>{item.amount}</td>
           <td>{item.description}</td>
           <td>
-            <BsFillTrashFill onClick={()=>handleRemoveIncome(index)}/> {/* Delete */}
-            <BsFillPencilFill onClick={()=>handleEditIncome(index)}/>  {/* Edit */}
+            <BsFillTrashFill onClick={()=>handleRemoveIncome(index)}/>
+            <BsFillPencilFill onClick={()=>handleEditIncome(index)}/>
           </td>
         </tr>
       ))}
