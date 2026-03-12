@@ -20,7 +20,7 @@ export default function Login() {
 
     try {
       const result = await login(email, password); // returns plain text
-      if (result === "Login successful") {
+      if (result && result.id) {
         navigate("/home"); // redirect to home on success
       } else {
         setError(result);

@@ -1,131 +1,172 @@
-import React,{useState,useEffect} from "react"
-import {BsFillTrashFill,BsFillPencilFill} from "react-icons/bs"
-import {useNavigate} from "react-router-dom"
-import { getCurrentUser } from "../../services/authService"
+import React, { useState, useEffect } from "react";
+import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../../services/authService"; // Get logged-in user
 
-export default function Income({incomeList,setIncomeList}){
+// Income tracker component
+export default function Income({ incomeList, setIncomeList }) {
+  const [date, setDate] = useState("");               // Form date
+  const [amount, setAmount] = useState("");           // Form amount
+  const [description, setDescription] = useState(""); // Form description
+  const [editingIndex, setEditingIndex] = useState(null); // Editing row index
+  const [error, setError] = useState("");             // Validation errors
+  const [selectedMonth, setSelectedMonth] = useState(""); // Month filter
 
-const [date,setDate] = useState("")
-const [amount,setAmount] = useState("")
-const [description,setDescription] = useState("")
-const [editingIndex,setEditingIndex] = useState(null)
-const [error,setError] = useState("")
-const [selectedMonth,setSelectedMonth] = useState("")
+  const navigate = useNavigate();
 
-const navigate = useNavigate()
-const user = getCurrentUser()  // getting logged in users
+  // Load incomes from backend on mount
+  useEffect(() => {
+    async function fetchIncomes() {
+      try {
+        const user = getCurrentUser();
+        if (!user) return;
+        const res = await fetch(`http://localhost:8080/api/incomes`);
+        const data = await res.json();
+        setIncomeList(data);
+      } catch (err) {
+        console.error("Failed to fetch incomes:", err);
+      }
+    }
+    fetchIncomes();
+  }, [setIncomeList]);
 
-// Load incomes from backend when component mounts
-useEffect(()=>{
-  if(!user) return;   // if not logged in, skip
-  fetch(`http://localhost:8080/api/incomes/${user.id}`)
-    .then(res=>res.json())
-    .then(data=>setIncomeList(data))
-    .catch(err=>console.error(err))
-},[user,setIncomeList])
+  // Filter incomes by selected month
+  const filteredIncome = selectedMonth
+    ? incomeList.filter((item) => item.date && item.date.slice(0, 7) === selectedMonth)
+    : incomeList;
 
-// Filter incomes by selected month
-const filteredIncome = selectedMonth
-? incomeList.filter(item => item.date.slice(0,7) === selectedMonth)
-: incomeList
+  // Add or update income
+  const handleAddIncome = async (e) => {
+    e.preventDefault();
+    setError("");
 
-// Add or update income
-const handleAddIncome = async(e)=>{
-  e.preventDefault()
-  if(!date){setError("Enter date");return}
-  if(!amount){setError("Enter amount");return}
-  if(!user){setError("User not logged in");return}   // <- check user
+    if (!date) { setError("Enter date"); return; }
+    if (!amount) { setError("Enter amount"); return; }
 
-  const newIncome = {date, amount:Number(amount), description}
+    const user = getCurrentUser();
+    if (!user) { setError("User not logged in"); return; }
 
-  // Send to backend
-  const response = await fetch(`http://localhost:8080/api/incomes/${user.id}`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(newIncome)
-  })
-  const savedIncome = await response.json()
+    const newIncome = { date, amount: Number(amount), description };
 
-  if(editingIndex===null){
-    setIncomeList([...incomeList,savedIncome])
-  } else {
-    const updated = incomeList.map((item,idx)=>
-      idx===editingIndex ? savedIncome : item
-    )
-    setIncomeList(updated)
-    setEditingIndex(null)
-  }
+    try {
+      let savedIncome;
+      if (editingIndex === null) {
+        // POST new income to backend
+        const res = await fetch(`http://localhost:8080/api/incomes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newIncome),
+        });
+        savedIncome = await res.json();
+        setIncomeList([...incomeList, savedIncome]);
+      } else {
+        // PUT update existing income
+        const incomeToUpdate = incomeList[editingIndex];
+        const res = await fetch(`http://localhost:8080/api/incomes/${incomeToUpdate.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newIncome),
+        });
+        savedIncome = await res.json();
+        const updatedList = incomeList.map((item, idx) => idx === editingIndex ? savedIncome : item);
+        setIncomeList(updatedList);
+        setEditingIndex(null);
+      }
+    } catch (err) {
+      console.error("Failed to save income:", err);
+      setError("Failed to save income.");
+    }
 
-  setDate(""); setAmount(""); setDescription("")
-}
+    setDate(""); setAmount(""); setDescription("");
+  };
 
-// Delete income locally
-const handleRemoveIncome = (i)=>{
-  setIncomeList(incomeList.filter((_,idx)=>idx!==i))
-}
+  // Delete income
+  const handleRemoveIncome = async (i) => {
+    try {
+      const incomeToDelete = filteredIncome[i];
+      await fetch(`http://localhost:8080/api/incomes/${incomeToDelete.id}`, { method: "DELETE" });
+      setIncomeList(incomeList.filter(item => item.id !== incomeToDelete.id));
+    } catch (err) {
+      console.error("Failed to delete income:", err);
+      setError("Failed to delete income.");
+    }
+  };
 
-// Load income into form for editing
-const handleEditIncome = (i)=>{
-  const item = incomeList[i]
-  setDate(item.date); setAmount(item.amount); setDescription(item.description)
-  setEditingIndex(i)
-}
+  // Load income into form for editing
+  const handleEditIncome = (i) => {
+    const item = filteredIncome[i];
+    setDate(item.date); setAmount(item.amount); setDescription(item.description);
+    const indexInOriginal = incomeList.findIndex(e => e.id === item.id);
+    setEditingIndex(indexInOriginal);
+  };
 
-// Calculate total for filtered incomes
-const totalAmount = filteredIncome.reduce((sum,item)=>sum+item.amount,0)
+  const totalAmount = filteredIncome.reduce((sum, item) => sum + item.amount, 0); // Total filtered incomes
+  const monthOptions = Array.from(new Set(incomeList.map(item => item.date && item.date.slice(0, 7)))).sort(); // Months
 
-// Extract unique months for filter dropdown
-const monthOptions = Array.from(new Set(incomeList.map(item=>item.date.slice(0,7)))).sort()
+  return (
+    <div className="tracker-page">
+      <h1 className="tracker-title">Income Tracker</h1>
 
-return(
-<div>
-  <h1>Income Tracker</h1>
+      <div className="tracker-card">
+        {/* Month filter */}
+        <div className="tracker-filter">
+          <label htmlFor="monthSelect">Filter by Month:</label>
+          <select id="monthSelect" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+            <option value="">All Months</option>
+            {monthOptions.map(month => (
+              <option key={month} value={month}>
+                {new Date(month + "-01").toLocaleString("default", { month: "long", year: "numeric" })}
+              </option>
+            ))}
+          </select>
+        </div>
 
-  {/* Month filter */}
-  <select value={selectedMonth} onChange={(e)=>setSelectedMonth(e.target.value)}>
-    <option value="">All Months</option>
-    {monthOptions.map(month=>(
-      <option key={month} value={month}>{month}</option>
-    ))}
-  </select>
+        {/* Error */}
+        {error && <p className="tracker-error">{error}</p>}
 
-  {/* Error message */}
-  {error && <p>{error}</p>}
+        {/* Form */}
+        <div className="tracker-form-row">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
 
-  {/* Form */}
-  <input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/>
-  <input type="number" placeholder="Amount" value={amount} onChange={(e)=>setAmount(e.target.value)}/>
-  <input type="text" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)}/>
+        {/* Buttons */}
+        <div className="tracker-btn-row">
+          <button className="tracker-btn tracker-btn-primary" onClick={handleAddIncome}>
+            {editingIndex !== null ? "Update Income" : "Add Income"}
+          </button>
+          <button className="tracker-btn tracker-btn-secondary" onClick={() => navigate("/expenses")}>
+            Go to Expenses
+          </button>
+        </div>
 
-  {/* Buttons */}
-  <button onClick={handleAddIncome}>{editingIndex!==null ? "Update Income":"Add Income"}</button>
-  <button onClick={()=>navigate("/expenses")}>Go to Expenses</button>
-
-  {/* Table */}
-  <table>
-    <thead>
-      <tr><th>Date</th><th>Amount</th><th>Description</th><th>Action</th></tr>
-    </thead>
-    <tbody>
-      {filteredIncome.map((item,index)=>(
-        <tr key={index}>
-          <td>{item.date}</td>
-          <td>{item.amount}</td>
-          <td>{item.description}</td>
-          <td>
-            <BsFillTrashFill onClick={()=>handleRemoveIncome(index)}/>
-            <BsFillPencilFill onClick={()=>handleEditIncome(index)}/>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-    <tfoot>
-      <tr>
-        <th>Total</th>
-        <th colSpan="3">{totalAmount}</th>
-      </tr>
-    </tfoot>
-  </table>
-</div>
-)
+        {/* Table */}
+        <table className="tracker-table">
+          <thead>
+            <tr><th>Date</th><th>Amount</th><th>Description</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {filteredIncome.map((item, index) => (
+              <tr key={item.id}>
+                <td>{item.date}</td>
+                <td>{item.amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
+                <td>{item.description}</td>
+                <td className="tracker-actions">
+                  <BsFillTrashFill onClick={() => handleRemoveIncome(index)} />
+                  <BsFillPencilFill onClick={() => handleEditIncome(index)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              <th colSpan="3">{totalAmount.toLocaleString("en-US", { style: "currency", currency: "USD" })}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
 }

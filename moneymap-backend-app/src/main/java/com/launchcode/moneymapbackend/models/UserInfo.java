@@ -1,5 +1,6 @@
 package com.launchcode.moneymapbackend.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 //Here I created a UserInfo class to store user information in the MySQL database.
 // It includes fields for id, first name, last name, email, password, and roles.
@@ -17,6 +18,7 @@ import jakarta.persistence.*;
         private String lastName;
         @Column(unique = true)
         private String email;
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         private String password;
         private String roles = "USER";
 
