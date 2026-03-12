@@ -33,7 +33,7 @@ export async function login(email, password) {
 
   const user = await response.json();
 
-  // Save user in browser
+  // Save logged in user
   localStorage.setItem("user", JSON.stringify(user));
 
   return user;
