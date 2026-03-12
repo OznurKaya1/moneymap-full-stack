@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from "react"
-import {getCurrentUser} from "../services/authService"
+import {getCurrentUser} from "../../services/authService"
 
 
 export default function Expenses({expenseList,setExpenseList}){
