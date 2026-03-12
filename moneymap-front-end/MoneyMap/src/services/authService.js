@@ -31,7 +31,7 @@ export async function login(email, password) {
     throw new Error(error);
   }
 
-  const user = await response.text();
+  const user = await response.json();
 
   // Save logged in user
   localStorage.setItem("user", JSON.stringify(user));

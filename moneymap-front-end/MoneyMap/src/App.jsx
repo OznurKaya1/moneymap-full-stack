@@ -14,6 +14,8 @@ import Contact from "./components/Pages/Contact";
 import ForgotMyPassword from "./components/ForgotMyPassword";
 import TrackingCard from "./components/Pages/TrackingCard";
 import SavingGoalsCard from './components/Pages/SavingGoalsCard'
+import ExpenseSummary from "./components/Tracking/ExpenseSummary";
+
 import './App.css'
 
 export default function App() {
@@ -66,6 +68,7 @@ export default function App() {
             />
           }
         />
+        <Route path="/summary" element={<ExpenseSummary expenseList={expenseList} />} />
       </Routes>
 
       <Footer />

@@ -36,6 +36,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(userInfo);
     }
 }
