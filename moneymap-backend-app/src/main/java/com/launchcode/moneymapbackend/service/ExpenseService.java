@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-
+// This service class encapsulates the business logic for managing expenses, providing methods to add, retrieve, update, and delete expenses
+// while ensuring that operations are performed in the context of the authenticated user.
 @Service
 public class ExpenseService {
 

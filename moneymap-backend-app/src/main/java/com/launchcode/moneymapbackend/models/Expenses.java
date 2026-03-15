@@ -3,7 +3,7 @@ package com.launchcode.moneymapbackend.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-
+// This entity represents an expense record, linked to a user, with details such as date, amount, description, and category.
 @Entity
 public class Expenses {
     @Id
@@ -13,7 +13,7 @@ public class Expenses {
     private Double amount;
     private String description;
     private String category;
-
+// Many-to-one relationship with UserInfo
     @ManyToOne
     private UserInfo user; // Many expenses can belong to one user
 

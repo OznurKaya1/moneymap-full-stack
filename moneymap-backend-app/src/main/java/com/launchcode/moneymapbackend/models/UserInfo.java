@@ -2,13 +2,8 @@ package com.launchcode.moneymapbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-//Here I created a UserInfo class to store user information in the MySQL database.
-// It includes fields for id, first name, last name, email, password, and roles.
-// The email field is marked as unique to prevent duplicate entries. The roles field defaults to
-// "USER" but can be updated to include other roles as needed. This class will be used for authentication
-// and authorization purposes in the application.
 
-@Entity
+// This entity represents a user in the system, with fields for personal information, authentication credentials.
     @Table(name="users")
     public class UserInfo {
         @Id

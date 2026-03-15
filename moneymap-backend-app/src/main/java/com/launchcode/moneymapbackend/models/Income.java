@@ -3,7 +3,7 @@ package com.launchcode.moneymapbackend.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-
+//
 @Entity
 public class Income {
     @Id

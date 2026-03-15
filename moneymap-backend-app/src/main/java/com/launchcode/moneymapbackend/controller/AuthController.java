@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+    // This controller handles user authentication.
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,10 +31,21 @@ public class AuthController {
     //LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserInfo loginRequest){
-        UserInfo userInfo = userInfoRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
-        if (!passwordEncoder.matches(loginRequest.getPassword(), userInfo.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+
+        // Check if user exists
+        UserInfo userInfo = userInfoRepository.findByEmail(loginRequest.getEmail()).orElse(null);
+
+        if(userInfo == null){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("User not found. Please sign up.");
+        }
+
+        // Check password
+        if(!passwordEncoder.matches(loginRequest.getPassword(), userInfo.getPassword())){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password");
         }
 
         return ResponseEntity.ok(userInfo);

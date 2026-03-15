@@ -2,64 +2,81 @@ package com.launchcode.moneymapbackend.controller;
 
 import com.launchcode.moneymapbackend.models.Income;
 import com.launchcode.moneymapbackend.models.UserInfo;
-import com.launchcode.moneymapbackend.service.IncomeService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.launchcode.moneymapbackend.repository.IncomeRepository;
+import com.launchcode.moneymapbackend.repository.UserInfoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
-
+//
 @RestController
 @RequestMapping("/api/incomes")
 public class IncomeController {
 
-    private final IncomeService incomeService;
+    @Autowired
+    private IncomeRepository incomeRepository;
 
-    public IncomeController(IncomeService incomeService) {
-        this.incomeService = incomeService;
-    }
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
-    // Add income
-    @PostMapping
-    public Income addIncome(@RequestBody Income income, @AuthenticationPrincipal UserDetails userDetails) {
-        // Set the logged-in user
-        income.setUser((UserInfo) userDetails); // adjust based on your UserDetails implementation
-        return incomeService.addIncome(income);
+    // Create income for a specific user
+    @PostMapping("/{userId}")
+    public ResponseEntity<Income> addIncome(@PathVariable Long userId, @RequestBody Income income) {
+        UserInfo user = userInfoRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        income.setUser(user);
+        Income savedIncome = incomeRepository.save(income);
+        return ResponseEntity.ok(savedIncome);
     }
 
     // Update income
-    @PutMapping("/{id}")
-    public Income updateIncome(@PathVariable Long id, @RequestBody Income income) {
-        return incomeService.updateIncome(id, income);
+    @PutMapping("/{userId}/{incomeId}")
+    public ResponseEntity<Income> updateIncome(@PathVariable Long userId,
+                                               @PathVariable Long incomeId,
+                                               @RequestBody Income incomeDetails) {
+        UserInfo user = userInfoRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Income income = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new RuntimeException("Income not found"));
+
+        if (!income.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).build(); // forbid updates to others' income
+        }
+
+        income.setAmount(incomeDetails.getAmount());
+        income.setDate(incomeDetails.getDate());
+        income.setDescription(incomeDetails.getDescription());
+
+        Income updatedIncome = incomeRepository.save(income);
+        return ResponseEntity.ok(updatedIncome);
     }
 
     // Delete income
-    @DeleteMapping("/{id}")
-    public void deleteIncome(@PathVariable Long id) {
-        incomeService.deleteIncome(id);
+    @DeleteMapping("/{userId}/{incomeId}")
+    public ResponseEntity<Void> deleteIncome(@PathVariable Long userId,
+                                             @PathVariable Long incomeId) {
+        UserInfo user = userInfoRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Income income = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new RuntimeException("Income not found"));
+
+        if (!income.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).build(); // forbid deleting others' income
+        }
+
+        incomeRepository.delete(income);
+        return ResponseEntity.noContent().build();
     }
 
-    // Get all incomes for logged-in user
-    @GetMapping
-    public List<Income> getAllIncomes(@AuthenticationPrincipal UserDetails userDetails) {
-        return incomeService.getAllByUser((UserInfo) userDetails);
-    }
-
-    // Filter by category
-    @GetMapping("/category/{category}")
-    public List<Income> getByCategory(@PathVariable String category,
-                                      @AuthenticationPrincipal UserDetails userDetails) {
-        return incomeService.getByUserAndCategory((UserInfo) userDetails, category);
-    }
-
-    // Filter by date
-    @GetMapping("/filter")
-    public List<Income> getByDateRange(@RequestParam String start,
-                                       @RequestParam String end,
-                                       @AuthenticationPrincipal UserDetails userDetails) {
-        LocalDate startDate = LocalDate.parse(start);
-        LocalDate endDate = LocalDate.parse(end);
-        return incomeService.getByUserAndDateBetween((UserInfo) userDetails, startDate, endDate);
+    // Get all incomes for a user
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Income>> getAllIncomes(@PathVariable Long userId) {
+        UserInfo user = userInfoRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Income> incomes = incomeRepository.findByUser(user);
+        return ResponseEntity.ok(incomes);
     }
 }

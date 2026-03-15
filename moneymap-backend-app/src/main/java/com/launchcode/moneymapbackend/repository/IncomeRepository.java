@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-
+// This repository allowing us to retrieve income records based on user, category, and date range.
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, Long> {
     List<Income> findByUser(UserInfo user);

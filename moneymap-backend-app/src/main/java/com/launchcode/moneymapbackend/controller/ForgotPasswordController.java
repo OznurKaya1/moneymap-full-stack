@@ -14,10 +14,7 @@ public class ForgotPasswordController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Step 1: User submits their email.
-     * System checks if the email exists in the database.
-     */
+    //User submits their email to verify if it exists in the system before allowing them to reset their password.
     @PostMapping("/forgot-password/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestBody java.util.Map<String, String> body) {
         String email = body.get("email");
@@ -35,10 +32,8 @@ public class ForgotPasswordController {
         return ResponseEntity.ok("Email verified. You may now reset your password.");
     }
 
-    /**
-     * Step 2: User submits their email + new password.
-     * System hashes the new password and updates it in the database.
-     */
+    // This endpoint allows users to reset their password by providing their email and a new password.
+
     @PostMapping("/forgot-password/reset")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         if (request.getEmail() == null || request.getEmail().isBlank()) {

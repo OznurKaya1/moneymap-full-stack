@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
+// This service class encapsulates the business logic for managing income records, providing methods to add, retrieve, update, and delete income entries
+// while ensuring that operations are performed in the context of the authenticated user.
 @Service
 public class IncomeService {
 
