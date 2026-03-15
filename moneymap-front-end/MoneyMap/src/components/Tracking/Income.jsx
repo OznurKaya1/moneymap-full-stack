@@ -1,137 +1,163 @@
 import React, { useState, useEffect } from "react";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../../services/authService"; // Get logged-in user
+import { getCurrentUser, logout } from "../../services/authService";
 
-// Income tracker component
 export default function Income({ incomeList, setIncomeList }) {
-  const [date, setDate] = useState("");               // Form date
-  const [amount, setAmount] = useState("");           // Form amount
-  const [description, setDescription] = useState(""); // Form description
-  const [editingIndex, setEditingIndex] = useState(null); // Editing row index
-  const [error, setError] = useState("");             // Validation errors
-  const [selectedMonth, setSelectedMonth] = useState(""); // Month filter
-
+  const [date, setDate] = useState("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [error, setError] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
   const navigate = useNavigate();
 
-  // Load incomes from backend on mount
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
+
+  // Fetch incomes for the logged-in user
   useEffect(() => {
     async function fetchIncomes() {
       try {
         const user = getCurrentUser();
-        if (!user) return;
-        const res = await fetch(`http://localhost:8080/api/incomes`);
+        if (!user) { setError("User not logged in."); return; }
+
+        const res = await fetch(`http://localhost:8080/api/incomes/${user.id}`);
+        if (!res.ok) throw new Error(`Server is not responding. Please try again later. (${res.status})`);
         const data = await res.json();
         setIncomeList(data);
       } catch (err) {
-        console.error("Failed to fetch incomes:", err);
+        console.error(err);
+        setError("Server is not responding. Please try again later.");
       }
     }
     fetchIncomes();
   }, [setIncomeList]);
 
-  // Filter incomes by selected month
+  // Filter by month
   const filteredIncome = selectedMonth
-    ? incomeList.filter((item) => item.date && item.date.slice(0, 7) === selectedMonth)
+    ? incomeList.filter(item => item.date?.slice(0, 7) === selectedMonth)
     : incomeList;
 
-  // Add or update income
   const handleAddIncome = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!date) { setError("Enter date"); return; }
-    if (!amount) { setError("Enter amount"); return; }
+    if (!date) { setError("Please enter a date."); return; }
+    if (!amount) { setError("Please enter an amount."); return; }
 
     const user = getCurrentUser();
-    if (!user) { setError("User not logged in"); return; }
+    if (!user) { setError("User not logged in."); return; }
 
     const newIncome = { date, amount: Number(amount), description };
 
     try {
-      let savedIncome;
       if (editingIndex === null) {
-        // POST new income to backend
-        const res = await fetch(`http://localhost:8080/api/incomes`, {
+        const res = await fetch(`http://localhost:8080/api/incomes/${user.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newIncome),
         });
-        savedIncome = await res.json();
+
+        if (!res.ok) throw new Error(`Server is not responding. Please try again later. (${res.status})`);
+
+        const savedIncome = await res.json();
         setIncomeList([...incomeList, savedIncome]);
       } else {
-        // PUT update existing income
         const incomeToUpdate = incomeList[editingIndex];
-        const res = await fetch(`http://localhost:8080/api/incomes/${incomeToUpdate.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newIncome),
-        });
-        savedIncome = await res.json();
-        const updatedList = incomeList.map((item, idx) => idx === editingIndex ? savedIncome : item);
+        const res = await fetch(
+          `http://localhost:8080/api/incomes/${user.id}/${incomeToUpdate.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newIncome),
+          }
+        );
+
+        if (!res.ok) throw new Error(`Server is not responding. Please try again later. (${res.status})`);
+
+        const updatedIncome = await res.json();
+        const updatedList = incomeList.map((item, idx) =>
+          idx === editingIndex ? updatedIncome : item
+        );
         setIncomeList(updatedList);
         setEditingIndex(null);
       }
     } catch (err) {
-      console.error("Failed to save income:", err);
-      setError("Failed to save income.");
+      console.error(err);
+      setError("Server is not responding. Please try again later.");
     }
 
-    setDate(""); setAmount(""); setDescription("");
+    setDate("");
+    setAmount("");
+    setDescription("");
   };
 
   // Delete income
   const handleRemoveIncome = async (i) => {
+    const incomeToDelete = filteredIncome[i];
+    if (!incomeToDelete) return;
+
+    const user = getCurrentUser();
+    if (!user) { setError("User not logged in."); return; }
+
     try {
-      const incomeToDelete = filteredIncome[i];
-      await fetch(`http://localhost:8080/api/incomes/${incomeToDelete.id}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:8080/api/incomes/${user.id}/${incomeToDelete.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Server is not responding. Please try again later. (${res.status})`);
       setIncomeList(incomeList.filter(item => item.id !== incomeToDelete.id));
     } catch (err) {
-      console.error("Failed to delete income:", err);
-      setError("Failed to delete income.");
+      console.error(err);
+      setError("Server is not responding. Please try again later.");
     }
   };
 
-  // Load income into form for editing
+  // Edit income
   const handleEditIncome = (i) => {
     const item = filteredIncome[i];
-    setDate(item.date); setAmount(item.amount); setDescription(item.description);
+    if (!item) return;
+
+    setDate(item.date);
+    setAmount(item.amount);
+    setDescription(item.description);
+
     const indexInOriginal = incomeList.findIndex(e => e.id === item.id);
     setEditingIndex(indexInOriginal);
   };
 
-  const totalAmount = filteredIncome.reduce((sum, item) => sum + item.amount, 0); // Total filtered incomes
-  const monthOptions = Array.from(new Set(incomeList.map(item => item.date && item.date.slice(0, 7)))).sort(); // Months
+  const monthOptions = Array.from(new Set(incomeList.map(item => item.date?.slice(0, 7)))).sort();
+  const totalAmount = filteredIncome.reduce((sum, item) => sum + item.amount, 0);
 
   return (
     <div className="tracker-page">
       <h1 className="tracker-title">Income Tracker</h1>
 
       <div className="tracker-card">
-        {/* Month filter */}
+
         <div className="tracker-filter">
           <label htmlFor="monthSelect">Filter by Month:</label>
-          <select id="monthSelect" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+          <select
+            id="monthSelect"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
             <option value="">All Months</option>
             {monthOptions.map(month => (
               <option key={month} value={month}>
-                {new Date(month + "-01").toLocaleString("default", { month: "long", year: "numeric" })}
+                {new Date(month + "-01T00:00:00").toLocaleString("en-US", { month: "long", year: "numeric" })}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Error */}
         {error && <p className="tracker-error">{error}</p>}
 
-        {/* Form */}
         <div className="tracker-form-row">
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
           <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
 
-        {/* Buttons */}
         <div className="tracker-btn-row">
           <button className="tracker-btn tracker-btn-primary" onClick={handleAddIncome}>
             {editingIndex !== null ? "Update Income" : "Add Income"}
@@ -141,10 +167,11 @@ export default function Income({ incomeList, setIncomeList }) {
           </button>
         </div>
 
-        {/* Table */}
         <table className="tracker-table">
           <thead>
-            <tr><th>Date</th><th>Amount</th><th>Description</th><th>Action</th></tr>
+            <tr>
+              <th>Date</th><th>Amount</th><th>Description</th><th>Action</th>
+            </tr>
           </thead>
           <tbody>
             {filteredIncome.map((item, index) => (
@@ -166,6 +193,20 @@ export default function Income({ incomeList, setIncomeList }) {
             </tr>
           </tfoot>
         </table>
+
+        {/* Login / Logout button */}
+        <div style={{ textAlign: "center", marginTop: "25px" }}>
+          {getCurrentUser() ? (
+            <button className="tracker-btn tracker-btn-secondary" onClick={handleLogout}>
+              Logout
+            </button>
+          ) : (
+            <button className="tracker-btn tracker-btn-secondary" onClick={() => window.location.href = "/"}>
+              Login
+            </button>
+          )}
+        </div>
+
       </div>
     </div>
   );
