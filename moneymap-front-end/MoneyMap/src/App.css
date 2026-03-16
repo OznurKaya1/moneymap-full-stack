@@ -535,10 +535,6 @@ input[type=password]:focus {
   background-color: green;
 }
 
-/* =============================================
-   TRACKER PAGE - NEW DESIGN (Income & Expenses)
-   ============================================= */
-
 .tracker-page {
   min-height: 100vh;
   background-color: #eef1f5;
@@ -598,7 +594,6 @@ input[type=password]:focus {
   margin: 16px 0;
 }
 
-/* Form row */
 .tracker-form-row {
   display: flex;
   gap: 12px;
@@ -637,7 +632,6 @@ input[type=password]:focus {
   background: #fff;
 }
 
-/* The date input inside .tracker-field has no extra border */
 .tracker-field .tracker-input {
   border: none;
   padding: 0;
@@ -801,10 +795,6 @@ input[type=password]:focus {
 .action-icon.edit {
   color: #d97706;
 }
-
-/* =============================================
-   LEGACY TABLE STYLES (kept for other pages)
-   ============================================= */
 
 .main-container-table {
   max-width: 700px;
