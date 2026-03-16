@@ -2,8 +2,8 @@ package com.launchcode.moneymapbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
 // This entity represents a user in the system, with fields for personal information, authentication credentials.
+   @Entity
     @Table(name="users")
     public class UserInfo {
         @Id
