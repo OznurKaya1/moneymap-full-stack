@@ -68,7 +68,6 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 ```
 
-
 ---
 
 ### 4. Run the Backend
@@ -151,8 +150,8 @@ The database has three tables:
 
 ## 🖼️ Wireframes
 
-> [
-](https://www.figma.com/design/beQMDYI0a4f4kenEeiiRME/MoneyMap-Project-Unit-2?node-id=94-2&p=f&m=draw							)
+> https://www.figma.com/design/beQMDYI0a4f4kenEeiiRME/MoneyMap-Project-Unit-2?node-id=94-2&p=f&m=draw
+
 ---
 
 ## 🚀 Future Features
