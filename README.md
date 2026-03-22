@@ -151,8 +151,8 @@ The database has three tables:
 
 ## 🖼️ Wireframes
 
-> _Add your wireframe link here_
-
+> [
+](https://www.figma.com/design/beQMDYI0a4f4kenEeiiRME/MoneyMap-Project-Unit-2?node-id=94-2&p=f&m=draw							)
 ---
 
 ## 🚀 Future Features
