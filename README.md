@@ -173,18 +173,46 @@ This would allow MoneyMap to provide personalized, conversational insights and g
 
 ```
 moneymap-full-stack/
-├── moneymap-backend-app/                        ← Spring Boot backend
+├── moneymap-backend-app/                          ← Spring Boot backend
 │   ├── pom.xml
-│   └── src/main/java/com/launchcode/moneymapbackend/
-│       ├── controller/                          ← AuthController, ExpenseController, IncomeController, ForgotPasswordController
-│       ├── model/                               ← UserInfo, Income, Expense
-│       ├── repository/                          ← JPA repositories
-│       └── service/                             ← Business logic
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   └── src/
+│       └── main/
+│           ├── java/com/launchcode/moneymapbackend/
+│           │   ├── config/                        ← Security and app configuration
+│           │   ├── controller/                    ← AuthController, ExpenseController,
+│           │   │                                     ForgotPasswordController, IncomeController
+│           │   ├── dto/                           ← ResetPasswordRequest
+│           │   ├── models/                        ← Expenses, Income, UserInfo
+│           │   ├── repository/                    ← ExpenseRepository, IncomeRepository,
+│           │   │                                     UserInfoRepository
+│           │   ├── service/                       ← ExpenseService, IncomeService, UserService
+│           │   └── MoneymapBackendApplication.java
+│           └── resources/                         ← application.properties
 └── moneymap-front-end/MoneyMap/
-    └── src/
-        └── components/
-            ├── Auth/                            ← Signup, Login, ForgotPassword
-            ├── Income/                          ← Income form and table
-            ├── Expenses/                        ← Expense form and table
-            └── Dashboard/                       ← Charts and summary view
+    ├── public/
+    ├── src/
+    │   ├── components/
+    │   │   ├── css/                               ← Component stylesheets
+    │   │   ├── Images/                            ← Image assets
+    │   │   ├── layout/                            ← Shared layout components
+    │   │   ├── Pages/                             ← Page-level components
+    │   │   ├── Tracking/                          ← Expenses.jsx, ExpenseSummary.jsx,
+    │   │   │                                         Income.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── DashboardCard.jsx
+    │   │   ├── ForgotMyPassword.jsx
+    │   │   ├── HomePage.jsx
+    │   │   ├── Login.jsx
+    │   │   └── SignUp.jsx
+    │   ├── services/                              ← authService.js
+    │   ├── App.css
+    │   ├── App.jsx
+    │   ├── index.css
+    │   └── main.jsx
+    ├── index.html
+    ├── package.json
+    ├── vite.config.js
+    └── eslint.config.js
 ```
